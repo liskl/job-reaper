@@ -1,14 +1,15 @@
-FROM centos
+FROM alpine:3.11.6
+
+RUN apk add --update curl jq bash
 
 # install kubectl
-RUN KUBECTL_VERSION=1.15.3 && curl -vo kubectl http://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl /usr/local/bin/
+ENV KUBECTL_VERSION=1.15.3
 
-# install other dependencies
-RUN yum install -y epel-release && yum clean all
-RUN yum install -y jq && yum clean all
+RUN curl -vo /usr/local/bin/kubectl http://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
+  && chmod +x /usr/local/bin/kubectl
 
 # copy collector to container
-COPY reap.sh ./
+COPY src/reap.sh ./
 RUN chmod +x reap.sh
 
 CMD ./reap.sh
